@@ -1,2 +1,0 @@
-# Đặt hàng
-# Thanh toán
