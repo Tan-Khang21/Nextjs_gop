@@ -1,0 +1,13 @@
+
+ 
+  CustomerID ,
+  Remote_Add ,
+  DateTime ,
+  Status ,
+  IDNhomCuoc , TinhTrangBaoGia,idHinhThucThanhToan ,SoBangBaoGia,
+  GiaTriBangBaoGia ,GhiChu ,CustomerName,Tel,Address ,EmailAddress ,
+  CustomerName2,Tel2, Address2 ,Notice ,
+  TinhTrangXacNhan , TinhTrangNhanVienXuLy ,NoiDung , QuyTrinh,
+  TinhTrangXuatKho , TinhTrangNhanTien , GiaTriThucBaoGia , NhanVienXuLy , NguoiQuanTri , NgayLapPhieu date, TinhTrangPhieu , IDNguoiMuaHang ,
+  SoThuTrucTiep , NguoiBanHang , NguoiLapPhieu , ThuKho 
+
