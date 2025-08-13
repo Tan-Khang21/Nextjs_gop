@@ -12,12 +12,14 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { headerTopMenuListLeft, headerTopMenuListRight } from "@/api/ListApi";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { handleLogout } from "@/api/authApi";
 import { useRouter } from "next/navigation";
+import GuestCart from "../cart/GuestCart";
+import { useGuestCart } from "@/hooks/useGuestCart";
 
 export default function Header() {
   const { loggedIn, users } = useSelector((state: RootState) => state.auths);
@@ -28,6 +30,48 @@ export default function Header() {
 
   const [navOpen, setNavOpen] = useState(false);
   const [openMenuChild, setOpenMenuChild] = useState<boolean>(false);
+  const [cartOpen, setCartOpen] = useState(false);
+  
+  const { getTotalItems, refreshCart } = useGuestCart();
+  const cartCount = getTotalItems();
+  
+  // Debug log for cart count changes
+  useEffect(() => {
+    console.log("🔥 [Header] Cart count updated:", cartCount);
+  }, [cartCount]);
+  
+  const cartDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close cart dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (cartDropdownRef.current && !cartDropdownRef.current.contains(event.target as Node)) {
+        setCartOpen(false);
+      }
+    };
+
+    if (cartOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [cartOpen]);
+
+  // Listen for cart updates
+  useEffect(() => {
+    const handleCartUpdate = () => {
+      console.log("🔥 [Header] Received cartUpdated event, refreshing cart...");
+      refreshCart();
+    };
+
+    window.addEventListener('cartUpdated', handleCartUpdate);
+
+    return () => {
+      window.removeEventListener('cartUpdated', handleCartUpdate);
+    };
+  }, [refreshCart]);
 
   const logout = async () => {
     await handleLogout();
@@ -161,12 +205,40 @@ export default function Header() {
         {/* Desktop Action Icons */}
 
         <div className="gap-2 d-lg-flex d-none">
-          <Link
-            href={loggedIn ? "/gio-hang" : "/login"}
-            className="rounded btn btn-outline-light"
-          >
-            <FontAwesomeIcon icon={faCartArrowDown} />
-          </Link>
+          {/* Cart Dropdown */}
+          <div className="dropdown position-relative" ref={cartDropdownRef}>
+            <button
+              className="btn btn-outline-light rounded position-relative"
+              onClick={() => setCartOpen(!cartOpen)}
+              type="button"
+            >
+              <FontAwesomeIcon icon={faCartArrowDown} />
+              {cartCount > 0 && (
+                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                  {cartCount}
+                  <span className="visually-hidden">items in cart</span>
+                </span>
+              )}
+            </button>
+            {cartOpen && (
+              <div 
+                className="dropdown-menu show position-absolute" 
+                style={{ 
+                  right: '0', 
+                  left: 'auto', 
+                  width: '400px', 
+                  maxHeight: '500px', 
+                  overflowY: 'auto',
+                  zIndex: 1050
+                }}
+              >
+                <div className="p-3">
+                  <GuestCart />
+                </div>
+              </div>
+            )}
+          </div>
+          
           <Link
             href={loggedIn ? "/wishlist" : "/login"}
             className="rounded btn btn-outline-light"

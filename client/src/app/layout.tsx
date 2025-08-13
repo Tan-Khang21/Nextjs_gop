@@ -8,15 +8,13 @@ import Footer from "@/components/footer/footer";
 import AppProvider from "@/redux/AppProvider";
 // import HeaderTop from "@/components/header/HeaderTop";
 import RightContent from "@/components/pagebody/RightContent";
-import LeftContent from "@/components/pagebody/LeftContent";
-import BannerPage from "./[slug1]/[slug2]/BannerPage";
+
 import Map from "@/components/items/Map";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import ProductContainer from "@/components/products/ProductContainer";
 import SidebarMenu from "@/components/sidebar/SidebarMenu"; 
 import NewsPage from "@/components/news/NewsPage1";
 import PageBanner from "@/components/header/PageBanner";
-import HomeTail from "@/app/HomeTail";
 
 //boot script
 
@@ -40,7 +38,48 @@ export const metadata: Metadata = {
     "máy tính, laptop, PC, thiết bị công nghệ, phần cứng máy tính, Chồi Xanh Media",
   ],
 };
-// Đặt lại title cho các trang con
+
+/*export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body className={`${nunito.variable} ${nunitoSans.variable}`}>
+        <ReduxProvider>
+          <AppProvider>
+            <header>
+              {<HeaderTop />}
+              <Header />
+            </header>
+            <PageBanner img="https://demodienmay.125.atoz.vn/mediaroot/media/userfiles/useruploads/455/image/slide/thiet-bi-dien-may_033704340.png"/>
+            <main className="container-fluid">
+              {/* Left content (25%) }
+              <div className="row">
+                <div className="col-lg-2 d-lg-block d-none">
+                <SidebarMenu />
+                </div>
+                {/* Main content (50%) mobile mode (100% padding x-2) }
+                <div className="col-lg-8">{children}</div>
+                <ProductContainer id="35278"/>
+                <NewsPage id="tintuc" />
+                {/*Right content (25%) (mobile-none) }
+                <div className="col-lg-2 d-lg-block d-none">
+                  <RightContent />
+                </div>
+              </div>
+            </main>
+            <footer>
+              <Map />
+              <Footer />
+            </footer>
+          </AppProvider>
+        </ReduxProvider>
+      </body>
+    </html>
+  );
+}*/
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -66,8 +105,9 @@ export default function RootLayout({
                 {/* Cột nội dung chính (Sản phẩm và Tin tức) */}
                 <div className="col-lg-6">
                   {children}
-                  {/*<ProductContainer id="35278" />
-                  <NewsPage id="tintuc" />*/}
+                  <ProductContainer id="35279" />
+                  <ProductContainer id="35278" />
+                   <NewsPage />
                 </div>
 
                 {/* Cột bên phải (Optional) */}

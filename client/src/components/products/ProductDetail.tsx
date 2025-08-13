@@ -307,7 +307,7 @@ export default function ProductDetail() {
               </div>
             </div>
           ))}
-          <RelatedProduct id={id as string} />
+          <RelatedProduct />
         </div>
       ) : (
         <SpinAnimation />

@@ -1,4 +1,4 @@
-import { initialState, AuthState } from "@/types/authType";
+import { initialState } from "@/types/authType";
 import { createSlice } from "@reduxjs/toolkit";
 import { checkAuth, login, register } from "../api/reduxAuthApi";
 

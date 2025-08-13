@@ -1,68 +1,77 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
+import SpinAnimation from "../items/SpinAnimation";
+import { getProduct } from "@/redux/api/reduxContentApi";
 import ProductCard from "./ProductCard";
 
-type AnyApiItem = Record<string, any>;
-
-type Props = {
-  id: string;
-};
-
-export default function ProductContainer({ id }: Props) {
-  // Nếu bạn đã có logic fetch API rồi thì giữ nguyên;
-  // mình giả định bạn đang set vào apiResponse { data: AnyApiItem[], recordsTotal?: number }
-  const [apiResponse, setApiResponse] = useState<{ data?: AnyApiItem[]; recordsTotal?: number }>({
-    data: [],
-    recordsTotal: 0,
-  });
+export default function ProductContainer({ id }: { id: string }) {
+  // Fetch sản phẩm
+  const dispatch = useDispatch<AppDispatch>();
+  const { products, loading } = useSelector(
+    (state: RootState) => state.contents
+  );
+  
+  // Track các ảnh bị lỗi
   const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set());
-
-  // TODO: Giữ nguyên phần useEffect fetch API của bạn (mình không thay đổi)
-  // useEffect(() => { ... setApiResponse({ data, recordsTotal }) }, [id]);
-
+  
   const handleImageError = (imageUrl: string) => {
-    setBrokenImages((s) => {
-      if (s.has(imageUrl)) return s;
-      const next = new Set(s);
-      next.add(imageUrl);
-      return next;
-    });
+    setBrokenImages(prev => new Set(prev).add(imageUrl));
   };
-
+  
+  // Handle cart update - có thể emit event hoặc trigger re-render
   const handleCartUpdate = () => {
-    // TODO: bạn đã có logic cập nhật giỏ hàng thì giữ nguyên
+    // Trigger a custom event để header có thể refresh cart count
+    window.dispatchEvent(new CustomEvent('cartUpdated'));
   };
-
-  const items = apiResponse.data || [];
-  const total = apiResponse.recordsTotal || items.length;
+  
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        await dispatch(getProduct({ id: id }));
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchProducts();
+  }, [dispatch, id]);
+  
+  if (loading == true) {
+    return <SpinAnimation />;
+  }
 
   return (
-    <section className="mb-4">
-      <h6 className="mb-3 text-success border-bottom border-3 border-success">
-        DANH SÁCH SẢN PHẨM{" "}
-        {total ? <span className="text-muted">({total} sản phẩm)</span> : null}
-      </h6>
-
-      {items.length ? (
-        <div className="row g-3">
-          {items.map((item) => (
-            <div className="col-6 col-md-4 col-lg-3" key={String(item.id ?? item.slug ?? Math.random())}>
-              <ProductCard
-                // 👇 ĐỔI thành p={item}
-                p={item}
-                brokenImages={brokenImages}
-                onImageError={handleImageError}
-                onCartUpdate={handleCartUpdate}
-              />
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-4">
-          <p className="text-muted m-0">Không có sản phẩm nào</p>
-        </div>
-      )}
-    </section>
+    <div>
+      {products[id] && products[id].length > 0
+        ? products[id].map((apiResponse) => (
+            <section key={`section-${id}-${apiResponse.recordsTotal}`} className="py-4">
+              <h6 className="fw-bold text-success border-bottom border-3 border-success">
+                DANH SÁCH SẢN PHẨM ({apiResponse.recordsTotal} sản phẩm)
+              </h6>
+              {/* Hiển thị danh sách sản phẩm từ API mới */}
+              <div className="d-block">
+                <div className="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-3 g-4">
+                  {apiResponse.data?.map((item) => (
+                    <div className="col" key={item.id}>
+                      <ProductCard
+                        product={item}
+                        brokenImages={brokenImages}
+                        onImageError={handleImageError}
+                        onCartUpdate={handleCartUpdate}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          ))
+        : (
+          <div className="text-center py-4">
+            <p className="text-muted">Không có sản phẩm nào</p>
+          </div>
+        )}
+    </div>
   );
 }
