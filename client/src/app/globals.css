@@ -1,0 +1,154 @@
+@import url("https://fonts.googleapis.com/css2?family=Ancizar+Sans:ital,wght@0,100..1000;1,100..1000&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap");
+@import "bootstrap/dist/css/bootstrap.min.css";
+
+:root {
+  --background: #ffffff;
+}
+
+html,
+body {
+  max-inline-size: 100vw;
+  overflow-x: hidden;
+  background: var(--background);
+  font-family: "Nunito", sans-serif;
+}
+
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+.bg-success {
+  color: #156a42;
+}
+
+
+
+.header-container {
+  color: white;
+}
+
+.header-container a {
+  text-decoration: none;
+  color: white;
+  font-size: 18px;
+}
+
+.header-container button {
+  color: white;
+  font-size: 18px;
+}
+
+.hover-opacity:hover {
+  opacity: 0.8;
+}
+
+.hover-underline:hover {
+  text-decoration: underline;
+}
+
+.hover-opacity:hover {
+  opacity: 0.8;
+}
+
+.hover-underline:hover {
+  text-decoration: underline;
+}
+
+.show-dropdown-menu:hover .dropdown-menu {
+  display: flex;
+}
+
+.wrap-left {
+  inline-size: 25%;
+}
+
+a {
+  text-decoration: none;
+}
+
+.product-alert {
+  backdrop-filter: blur(10px);
+}
+
+
+.productDescription {
+  inline-size: 100%;
+  font-size: 18px;
+}
+.productDescription td{
+  padding: 2;
+}
+.productDescription th img{
+  inline-size: 200px;
+  block-size: 200px;
+  object-fit: cover;
+}
+.productDescription img {
+  object-fit: cover;
+  inline-size: 100%;
+}
+
+.productDescription h2 {
+  font-size: 20px;
+}
+
+.product-detail-img {
+  inline-size: auto;
+  block-size: auto;
+}
+
+.product-detail-thumbnails {
+  object-fit: cover;
+  inline-size: auto;
+  block-size: auto;
+}
+
+/* Custom dropdown menu */
+.dropdown-menu-custom {
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 100%;
+  min-inline-size: 180px;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem;
+  display: none;
+  z-index: 1000;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Hiện khi hover */
+.group:hover .dropdown-menu-custom {
+  display: block;
+}
+
+.dropdown-item-custom {
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  color: #333;
+  text-decoration: none;
+  display: block;
+  transition: background 0.2s;
+}
+
+.dropdown-item-custom:hover {
+  background: #f0f0f0;
+}
+
+/* Dropdown hover mở trên desktop */
+@media (min-width: 992px) {
+  .navbar .dropdown-center:hover .dropdown-menu {
+    display: block;
+  }
+}
+
+@media (max-width: 992px) {
+  .navbar .dropend:hover .dropdown-menu {
+    display: block;
+  }
+}
+
