@@ -1,48 +1,30 @@
-// Server Component
-import SidebarList, { MenuItem } from "./SidebarList";
-import { getCombinedSidebarMenu, pickSidebarItems } from "@/app/api/combine-menu";
+"use client";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchSidebarMenu } from "@/redux/slices/sidebarSlice";
+import { RootState, AppDispatch } from "@/redux/store";
+import Link from "next/link";
 
-export const revalidate = 60;
+export default function SidebarMenu() {
+  const dispatch = useDispatch<AppDispatch>();
+  const { menu } = useSelector((state: RootState) => state.sidebar);
 
-function toMenuItems(data: any[]): MenuItem[] {
-  const walk = (arr: any[]): MenuItem[] =>
-    (arr || []).map((x) => ({
-      id: String(x.id ?? x.idpart ?? cryptoRandom()),
-      tieude: String(x.tieude ?? x.title ?? x.name ?? "Không tên"),
-      url: String(x.url ?? x.slug ?? "#"),
-      children: x.children ? walk(x.children) : undefined,
-    }));
-  return walk(data);
-}
-
-function cryptoRandom() {
-  return Math.random().toString(36).slice(2);
-}
-
-export default async function SideBarMenu() {
-  let items: MenuItem[] = [];
-
-  try {
-    const combined = await getCombinedSidebarMenu();
-    const picked = pickSidebarItems(combined);
-    items = toMenuItems(picked);
-  } catch (e) {
-    console.error("SideBarMenu error:", e);
-  }
-
-  // mở sẵn "Công Nghệ" nếu có
-  const congNgheId =
-    items.find((i) => i.tieude.toLowerCase().includes("công nghệ") || i.tieude.toLowerCase().includes("cong nghe"))
-      ?.id || undefined;
+  useEffect(() => {
+    dispatch(fetchSidebarMenu());
+  }, [dispatch]);
 
   return (
-    <aside className="mb-3">
-      <h4 className="fw-bold fs-3 mb-2">Danh mục</h4>
-      {!items.length ? (
-        <p className="text-muted small m-0">Không có danh mục.</p>
-      ) : (
-        <SidebarList items={items} defaultOpenIds={[]}/*defaultOpenIds={congNgheId ? [congNgheId] : []}*/ />
-      )}
+    <aside className="w-full max-w-[250px] bg-white border p-4">
+      <h3 className="font-bold text-xl mb-4">Danh mục</h3>
+      <ul className="space-y-2">
+        {menu.map((item) => (
+          <li key={item.idpart}>
+            <Link href={`/${item.url}`} className="text-blue-600 hover:underline">
+              {item.tieude}
+            </Link>
+          </li>
+        ))}
+      </ul>
     </aside>
   );
 }

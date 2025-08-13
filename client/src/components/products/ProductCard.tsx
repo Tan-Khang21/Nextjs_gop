@@ -1,4 +1,4 @@
-/*import Link from "next/link";
+import Link from "next/link";
 import { formatGia } from "@/redux/utils";
 import { addToCartGuest } from "@/api/contentApi";
 import { useSelector } from "react-redux";
@@ -144,7 +144,7 @@ export default function ProductCard({ product, brokenImages, onImageError, onCar
         className="text-decoration-none h-100 d-block"
       >
         <div className="card modern-card h-100 border-0 position-relative overflow-hidden">
-          {/* Sale badge }
+          {/* Sale badge */}
           {product.giakhuyenmai && product.giakhuyenmai !== "0" && (
             <div className="sale-badge">
               <span className="badge bg-danger">
@@ -154,17 +154,17 @@ export default function ProductCard({ product, brokenImages, onImageError, onCar
           )}
           
           <div className="card-body p-0 d-flex flex-column h-100">
-            {/* Product Title }
+            {/* Product Title */}
             <div className="product-title-section">
               <h6 className="product-title">
                 {product.tieude}
               </h6>
             </div>
             
-            {/* Product Image }
+            {/* Product Image */}
             <div className="product-image-section">
               {product.hinhdaidien && !brokenImages.has(product.hinhdaidien) ? (
-                /* eslint-disable-next-line @next/next/no-img-element 
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   src={product.hinhdaidien}
                   alt={product.tieude}
@@ -179,7 +179,7 @@ export default function ProductCard({ product, brokenImages, onImageError, onCar
               )}
             </div>
 
-            {/* Specifications }
+            {/* Specifications */}
             <div className="specs-section">
               {specs.map((spec, index) => (
                 <div key={index} className="spec-item">
@@ -197,7 +197,7 @@ export default function ProductCard({ product, brokenImages, onImageError, onCar
                 </div>
               ))}
               
-              {/* Brand }
+              {/* Brand */}
               {brand && (
                 <div className="spec-item">
                   <div className="spec-icon" style={{ color: '#17a2b8' }}>
@@ -215,7 +215,7 @@ export default function ProductCard({ product, brokenImages, onImageError, onCar
               )}
             </div>
 
-            {/* Price & Actions }
+            {/* Price & Actions */}
             <div className="price-action-section mt-auto">
               <div className="price-section">
                 {product.gia && product.gia !== "0" ? (
@@ -229,9 +229,9 @@ export default function ProductCard({ product, brokenImages, onImageError, onCar
                 )}
               </div>
               
-              {/* Action Buttons }
+              {/* Action Buttons */}
               <div className="action-buttons">
-                {/* Hiển thị thông báo 
+                {/* Hiển thị thông báo */}
                 {cartMessage && (
                   <div className="cart-message alert alert-info alert-sm mb-2 p-2 text-center small">
                     {cartMessage}
@@ -263,95 +263,4 @@ export default function ProductCard({ product, brokenImages, onImageError, onCar
       </Link>
     </div>
   );
-}*/
-"use client";
-
-import Image from "next/image";
-import Link from "next/link";
-
-type AnyProduct = Record<string, any>;
-
-type Props = {
-  /** Prop đúng hiện tại */
-  p?: AnyProduct;
-  /** Prop cũ: để tương thích ngược nếu nơi khác vẫn dùng product */
-  product?: AnyProduct;
-  brokenImages?: Set<string>;
-  onImageError?: (imageUrl: string) => void;
-  onCartUpdate?: () => void;
-};
-
-function getName(x: AnyProduct) {
-  return x.tieude || x.title || x.name || "Không tên";
 }
-function getImage(x: AnyProduct) {
-  return x.hinhdaidien || x.image || "";
-}
-function getPrice(x: AnyProduct) {
-  return x.gia || x.price || "Liên hệ";
-}
-function getSlug(x: AnyProduct) {
-  return x.url || x.slug || x.id || "#";
-}
-
-export default function ProductCard({
-  p,
-  product,
-  brokenImages,
-  onImageError,
-  onCartUpdate,
-}: Props) {
-  const item = p || product || {};
-  const name = getName(item);
-  const image = getImage(item);
-  const price = getPrice(item);
-  const slug = getSlug(item);
-
-  const isBroken = image && brokenImages?.has(image);
-
-  const handleImgErr = () => {
-    if (image) onImageError?.(image);
-  };
-
-  return (
-    <div className="card h-100 border-0 shadow-sm">
-      <Link href={`/product/${slug}`} className="text-decoration-none text-dark">
-        <div className="ratio ratio-4x3 bg-white d-flex align-items-center justify-content-center">
-          {image && !isBroken ? (
-            <Image
-              src={image}
-              alt={name}
-              width={400}
-              height={300}
-              className="img-fluid object-fit-contain p-2"
-              onError={handleImgErr}
-            />
-          ) : (
-            <div className="text-muted small">Không có hình</div>
-          )}
-        </div>
-
-        <div className="card-body">
-          <h6 className="card-title text-truncate" title={name}>
-            {name}
-          </h6>
-          <div className="card-text">
-            <strong className="text-danger">{String(price)}</strong>
-          </div>
-        </div>
-      </Link>
-
-      <div className="card-footer bg-transparent border-0 pt-0">
-        <button
-          type="button"
-          className="btn btn-sm btn-success w-100"
-          onClick={onCartUpdate}
-        >
-          Thêm vào giỏ
-        </button>
-      </div>
-    </div>
-  );
-}
-
-

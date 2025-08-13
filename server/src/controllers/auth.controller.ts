@@ -40,7 +40,7 @@ export default authRouter;
 /*----------controller--------*/
 const register = async (req: Request, res: Response) => {
   try {
-    const { email, password, name, tel, gender, address } = req.body;
+    const { email, password, name, username, tel, gender, address } = req.body;
     const response = await axios.post(`${apiUrl}/register.php`, {
       email,
       gender,
@@ -48,6 +48,7 @@ const register = async (req: Request, res: Response) => {
       password,
       tel,
       name,
+      username,
     });
     const result: ResultRegisterResponse = response.data;
     return res.status(200).json({ mess: "Đăng ký", result });

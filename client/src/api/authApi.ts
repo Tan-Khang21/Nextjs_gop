@@ -169,3 +169,238 @@ export function getFullImageUrl(imagePath: string) {
   // Nếu không có "/", thêm "/" vào giữa
   return `${baseUrl}/${imagePath}`;
 }
+
+// Function to get DathangMabaogia cookie from API
+export async function getDathangMabaogiayCookie() {
+  try {
+    console.log("🔥 [getDathangMabaogiayCookie] Calling cookie API...");
+    
+    const response = await axios.get('https://demodienmay.125.atoz.vn/ww1/cookie.mabaogia.asp');
+    console.log("🔥 [getDathangMabaogiayCookie] Cookie API response:", response.data);
+    
+    // API trả về array, lấy DathangMabaogia từ phần tử đầu tiên
+    const dathangData = response.data[0];
+    const dathangValue = dathangData?.DathangMabaogia;
+    
+    if (dathangValue) {
+      // Lưu vào localStorage
+      localStorage.setItem('DathangMabaogia', dathangValue);
+      console.log("🔥 [getDathangMabaogiayCookie] Saved DathangMabaogia to localStorage:", dathangValue);
+      
+      // Set cookie với thời hạn 365 ngày
+      const expiryDate = new Date();
+      expiryDate.setDate(expiryDate.getDate() + 365);
+      document.cookie = `DathangMabaogia=${dathangValue}; path=/; expires=${expiryDate.toUTCString()}`;
+      console.log("🔥 [getDathangMabaogiayCookie] Set DathangMabaogia cookie:", dathangValue);
+      
+      return dathangValue;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error("🔥 [getDathangMabaogiayCookie] Error:", error);
+    return null;
+  }
+}
+
+// Function to get ASP session cookie from current session
+function getAspSessionCookie(): { name: string; value: string } | null {
+  // Lấy từ localStorage nếu có
+  const storedSessionName = localStorage.getItem('aspSessionName');
+  const storedSessionValue = localStorage.getItem('aspSessionValue');
+  
+  if (storedSessionName && storedSessionValue) {
+    return { name: storedSessionName, value: storedSessionValue };
+  }
+  
+  // Lấy từ cookie hiện tại - tìm cookie bắt đầu với ASPSESSIONID
+  const cookies = document.cookie.split(';');
+  for (const cookie of cookies) {
+    const [name, value] = cookie.trim().split('=');
+    if (name.startsWith('ASPSESSIONID')) {
+      // Lưu vào localStorage để sử dụng lần sau
+      localStorage.setItem('aspSessionName', name);
+      localStorage.setItem('aspSessionValue', value);
+      return { name, value };
+    }
+  }
+  
+  return null;
+}
+
+// Remove item from cart - Using Next.js API Route as proxy
+export async function removeFromCart(idpart: string) {
+  console.log("🔥 [removeFromCart] Function called with idpart:", idpart);
+  
+  try {
+    // Hiển thị cookies hiện tại
+    console.log("🔥 [removeFromCart] Current browser cookies:", document.cookie);
+    
+    // Lấy ASP session từ localStorage hoặc cookies
+    const aspSession = getAspSessionCookie();
+    console.log("🔥 [removeFromCart] ASP Session found:", aspSession);
+    
+    // Kiểm tra localStorage cho DathangMabaogia
+    let dathangMabaogia = localStorage.getItem('DathangMabaogia');
+    
+    // Nếu chưa có DathangMabaogia, gọi API để lấy
+    if (!dathangMabaogia) {
+      console.log("🔥 [removeFromCart] DathangMabaogia not found, fetching from API...");
+      dathangMabaogia = await getDathangMabaogiayCookie();
+    }
+    
+    console.log("🔥 [removeFromCart] DathangMabaogia value:", dathangMabaogia);
+    
+    // Chuẩn bị data để gửi đến API Route
+    const requestData = {
+      idpart: idpart,
+      aspSession: aspSession,
+      dathangMabaogia: dathangMabaogia || '637'
+    };
+    
+    console.log("🔥 [removeFromCart] Sending data to API Route:", requestData);
+    
+    // Gọi Next.js API Route
+    const response = await fetch('/api/cart/remove', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(requestData)
+    });
+
+    console.log("🔥 [removeFromCart] API Route response status:", response.status);
+    
+    const result = await response.json();
+    console.log("🔥 [removeFromCart] API Route result:", result);
+    
+    return {
+      success: result.success,
+      message: result.message || "API call completed",
+      data: result.data
+    };
+    
+  } catch (error: unknown) {
+    console.error("🔥 [removeFromCart] Error occurred:", error);
+    
+    return {
+      success: false,
+      message: "Có lỗi xảy ra khi xóa sản phẩm: " + (error instanceof Error ? error.message : String(error)),
+      data: null
+    };
+  }
+}
+
+// Iframe method for CORS-safe cart removal
+async function removeFromCartWithIframe(
+  idpart: string, 
+  aspSession: { name: string; value: string } | null, 
+  dathangMabaogia: string
+) {
+  console.log("🔥 [removeFromCartWithIframe] Using iframe method");
+  console.log("🔥 [removeFromCartWithIframe] ASP Session:", aspSession);
+  console.log("🔥 [removeFromCartWithIframe] DathangMabaogia:", dathangMabaogia);
+  
+  return new Promise<{ success: boolean; message: string; data: string | null }>((resolve) => {
+    try {
+      // Set cookies trước khi iframe load để đảm bảo chúng được gửi
+      if (aspSession) {
+        // Set với domain chính và subdomain
+        document.cookie = `${aspSession.name}=${aspSession.value}; path=/; domain=.125.atoz.vn`;
+        document.cookie = `${aspSession.name}=${aspSession.value}; path=/`;
+        console.log("🔥 [removeFromCartWithIframe] Set ASP Session cookie:", aspSession.name + "=" + aspSession.value);
+      }
+      
+      // Set DathangMabaogia cookie
+      document.cookie = `DathangMabaogia=${dathangMabaogia}; path=/; domain=.125.atoz.vn; expires=` + new Date(Date.now() + 365*24*60*60*1000).toUTCString();
+      document.cookie = `DathangMabaogia=${dathangMabaogia}; path=/; expires=` + new Date(Date.now() + 365*24*60*60*1000).toUTCString();
+      console.log("🔥 [removeFromCartWithIframe] Set DathangMabaogia cookie:", dathangMabaogia);
+      
+      // Verify cookies đã được set
+      console.log("🔥 [removeFromCartWithIframe] Current cookies after setting:", document.cookie);
+      
+      // Tạo URL API với tất cả parameters cần thiết
+      let apiUrl = `https://demodienmay.125.atoz.vn/cart/xoa.asp?choixanh=xoasanpham&idpart=${idpart}`;
+      
+      // Thêm cookies vào URL query string như backup (một số ASP server có thể đọc từ query)
+      if (aspSession) {
+        apiUrl += `&${aspSession.name}=${aspSession.value}`;
+      }
+      apiUrl += `&DathangMabaogia=${dathangMabaogia}`;
+      
+      console.log("🔥 [removeFromCartWithIframe] Final API URL:", apiUrl);
+      
+      // Tạo iframe ẩn
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.style.width = '0px';
+      iframe.style.height = '0px';
+      iframe.style.position = 'absolute';
+      iframe.style.left = '-9999px';
+      iframe.style.top = '-9999px';
+      iframe.style.border = 'none';
+      
+      // Timeout để tránh treo
+      const timeoutId = setTimeout(() => {
+        console.log("🔥 [removeFromCartWithIframe] Timeout reached, cleaning up");
+        try {
+          if (iframe && iframe.parentNode) {
+            iframe.parentNode.removeChild(iframe);
+          }
+        } catch {}
+        resolve({
+          success: true,
+          message: "Đã gửi yêu cầu xóa sản phẩm (timeout)",
+          data: "timeout-success"
+        });
+      }, 3000);
+      
+      iframe.onload = () => {
+        console.log("🔥 [removeFromCartWithIframe] Iframe loaded successfully");
+        clearTimeout(timeoutId);
+        
+        setTimeout(() => {
+          try {
+            if (iframe && iframe.parentNode) {
+              iframe.parentNode.removeChild(iframe);
+            }
+            console.log("✅ [removeFromCartWithIframe] Iframe removed, API call completed");
+          } catch {}
+          resolve({
+            success: true,
+            message: "Đã gửi yêu cầu xóa sản phẩm",
+            data: "iframe-success"
+          });
+        }, 1000);
+      };
+      
+      iframe.onerror = () => {
+        console.error("❌ [removeFromCartWithIframe] Iframe failed to load");
+        clearTimeout(timeoutId);
+        try {
+          if (iframe && iframe.parentNode) {
+            iframe.parentNode.removeChild(iframe);
+          }
+        } catch {}
+        resolve({
+          success: false,
+          message: "Không thể xóa sản phẩm",
+          data: "iframe-error"
+        });
+      };
+      
+      // Thêm iframe vào DOM và load URL
+      document.body.appendChild(iframe);
+      iframe.src = apiUrl;
+      console.log("🔥 [removeFromCartWithIframe] Iframe created and loading...");
+      
+    } catch {
+      resolve({
+        success: false,
+        message: "Iframe method failed",
+        data: null
+      });
+    }
+  });
+}

@@ -100,7 +100,6 @@ export default function NewsPage({ id }: { id: string }) {
 }*/
 "use client";
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
 
 interface NewsItem {
   id: string;
@@ -111,12 +110,10 @@ interface NewsItem {
   noidungtomtat: string;
 }
 
-interface NewsPageProps {
-  id: string; // Thêm prop id vào đây
-}
-export default function NewsPage({ id }: NewsPageProps) {
+export default function NewsPage() {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetch(
@@ -141,16 +138,23 @@ export default function NewsPage({ id }: NewsPageProps) {
         {news.map((item) => (
           <div key={item.id} className="card" style={{ width: "100%", maxWidth: "600px", minHeight: "200px" }}>
             <div className="d-flex align-items-start p-2">
-              {item.hinhdaidien ? (
-                <Image
+              {item.hinhdaidien && !brokenImages.has(item.hinhdaidien) ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
                   src={item.hinhdaidien}
                   alt={item.tieude}
                   width={200}
                   height={200}
                   className="rounded object-fit-cover me-3"
+                  style={{ objectFit: 'cover' }}
+                  onError={() => {
+                    setBrokenImages(prev => new Set(prev).add(item.hinhdaidien));
+                  }}
                 />
               ) : (
-                <div style={{ width: 200, height:200, background: "#eee" }} className="me-3" />
+                <div style={{ width: 200, height:200, background: "#eee", display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="me-3 rounded">
+                  <span style={{ color: '#666', fontSize: '12px' }}>Không có hình</span>
+                </div>
               )}
               <div className="flex-grow-1">
                 <a

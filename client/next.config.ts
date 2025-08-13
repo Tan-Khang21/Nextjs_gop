@@ -5,7 +5,7 @@ const nextConfig = {
       "demodienmay.125.atoz.vn",
       "demochung.125.atoz.vn",
       "choixanh.net",
-      "cdn2.tuoitre.vn",  // Thêm hostname vào đây
+      "cdn2.tuoitre.vn",
     ],
     remotePatterns: [
       {
@@ -35,16 +35,6 @@ const nextConfig = {
     ];
   },
 };
-
-/*module.exports = {
-  webpack: (config) => {
-    config.watchOptions = {
-      poll: 1000, // Polling interval
-      aggregateTimeout: 500, // Delay before rebuilding
-    };
-    return config;
-  },
-};*/
 
 module.exports = nextConfig;
 
