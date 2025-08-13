@@ -1,4 +1,4 @@
-'use client';
+/*'use client';
 
 import { useGuestCart } from "@/hooks/useGuestCart";
 import { formatGia } from "@/redux/utils";
@@ -22,7 +22,6 @@ export default function GuestCart() {
 
   // SỬA HÀM handleRemoveItem (log trước khi gọi, chặn khi thiếu id)
 const handleRemoveItem = async (idpart: string, productName: string) => {
-  console.log("🧪 [handleRemoveItem] Function called");
   console.log("🧪 [handleRemoveItem] incoming:", { idpart, productName });
 
   if (!idpart) {
@@ -31,12 +30,8 @@ const handleRemoveItem = async (idpart: string, productName: string) => {
     return;
   }
 
-  if (!confirm(`Bạn có chắc chắn muốn xóa "${productName}" khỏi giỏ hàng?`)) {
-    console.log("🧪 [handleRemoveItem] User cancelled confirmation");
-    return;
-  }
+  if (!confirm(`Bạn có chắc chắn muốn xóa "${productName}" khỏi giỏ hàng?`)) return;
 
-  console.log("🧪 [handleRemoveItem] User confirmed, proceeding with removal");
   setRemovingItems(prev => [...prev, idpart]);
 
   try {
@@ -44,25 +39,16 @@ const handleRemoveItem = async (idpart: string, productName: string) => {
     const result = await removeFromCart(idpart);
     console.log("🔥 [handleRemoveItem] RESULT:", result);
 
-    // LUÔN LUÔN refresh cart sau khi gọi API xóa, bất kể thành công hay thất bại
-    console.log("🔄 [handleRemoveItem] Force refresh cart to get updated state and new session");
-    await refreshCart();
-    
-    // Dispatch event để thông báo cho Header component cập nhật badge
-    window.dispatchEvent(new CustomEvent('cartUpdated'));
-    console.log("🔄 [handleRemoveItem] Dispatched cartUpdated event");
-    
-    if (result && typeof result === 'object' && 'success' in result && result.success) {
-      console.log("✅ [handleRemoveItem] Remove request sent successfully");
+    if (result.success) {
+      await refreshCart();
     } else {
-      console.error("❌ Remove failed:", result && typeof result === 'object' && 'message' in result ? result.message : 'Unknown error');
-      alert("Có lỗi xảy ra khi xóa sản phẩm: " + (result && typeof result === 'object' && 'message' in result ? result.message : 'Unknown error'));
+      console.error("❌ Remove failed:", result.message);
+      alert("Có lỗi xảy ra khi xóa sản phẩm: " + result.message);
     }
   } catch (error) {
     console.error("❌ Remove error:", error);
     alert("Có lỗi xảy ra khi xóa sản phẩm");
   } finally {
-    console.log("🧪 [handleRemoveItem] Removing from removingItems:", idpart);
     setRemovingItems(prev => prev.filter(id => id !== idpart));
   }
 };
@@ -197,4 +183,4 @@ const handleRemoveItem = async (idpart: string, productName: string) => {
       </div>
     </div>
   );
-}
+}*/

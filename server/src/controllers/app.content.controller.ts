@@ -109,9 +109,8 @@ const updateCartQuantity = async (req: Request, res: Response) => {
 
 const getProduct = async (req: Request, res: Response) => {
   try {
-    const productApiUrl = process.env.PRODUCT_API;
     const { id } = req.query;
-    const response = await axios.get(`${productApiUrl}?id=${id}`);
+    const response = await axios.get(`https://demochung.125.atoz.vn/ww2/module.Sanpham.trangchu.asp?id=35279`);
     const product = response.data;
     if (!product || product.length === 0) {
       return res.status(400).json({ mess: "Không có sản phẩm" });

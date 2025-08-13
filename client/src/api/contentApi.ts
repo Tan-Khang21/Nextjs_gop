@@ -132,27 +132,7 @@ export async function getNewsDetailApi({ id }: { id: string }) {
   return { newsDetail, newsRelated };
 }
 //lấy danh sách tin tức
-/*export async function getNewsApi({
-  id,
-  page,
-  sl,
-}: {
-  id: string;
-  sl: number;
-  page: number;
-}) {
-  const res = await axios.get(`${apiUrl}/content/get-news`, {
-    params: { id, sl, page },
-  });
-
-  const news: News[] = res.data.news;
-
-  return {
-    id: id,
-    news: news,
-  };
-}*/
-export async function getNewsApi({ id, page, sl }: { id: string; sl: number; page: number }) {
+/*export async function getNewsApi({ id, page, sl }: { id: string; sl: number; page: number }) {
   const res = await axios.get(`/api/tintuc?id=${id}`);
   console.log("API trả về:", res.data); // 👈 Thêm dòng này để kiểm tra
 
@@ -165,7 +145,51 @@ export async function getNewsApi({ id, page, sl }: { id: string; sl: number; pag
       },
     ],
   };
+}*/
+// lấy danh sách tin tức (HỖ TRỢ PHÂN TRANG)
+export async function getNewsApi({
+  id = "45386",       // ID seed để server trả list liên quan
+  page = 1,           // trang hiện tại
+  sl = 30,            // số bản ghi/trang
+}: {
+  id?: string;
+  page?: number;
+  sl?: number;
+}) {
+  const url = new URL("https://demodienmay.125.atoz.vn/ww2/module.tintuc.chitiet.lienquan.asp");
+  url.searchParams.set("id", id);
+  url.searchParams.set("sl", String(sl));
+  url.searchParams.set("pageid", String(page));
+
+  const res = await axios.get(url.toString(), { withCredentials: false });
+  const payload = res.data;
+
+  // API trả về mảng 1 phần tử
+  const block = Array.isArray(payload) ? payload[0] : payload || {};
+  const items = Array.isArray(block?.data) ? block.data : [];
+
+  const total = Number(block?.recordsTotal ?? 0);
+  const pageSize = Number(block?.recordsFiltered ?? sl) || sl;
+
+  return {
+    id,
+    page,
+    pageSize,
+    total,
+    // giữ format cũ để các component sẵn có vẫn dùng được
+    news: [
+      {
+        module: block?.module || "Tintuc",
+        tenham: block?.tenham || "Tintuc",
+        kieu: block?.kieu,
+        tieude: block?.tieude || "TIN TỨC",
+        url: block?.url || "",
+        data: items,
+      },
+    ],
+  };
 }
+
 
 //add to wishlist
 export async function ProductActionAddWishlist({
@@ -448,6 +472,7 @@ export async function removeOrder(email: string, order_id: string) {
     }
   }
 }
+
 
 // =================== GIỎ HÀNG CHO NGƯỜI DÙNG CHƯA ĐĂNG NHẬP ===================
 

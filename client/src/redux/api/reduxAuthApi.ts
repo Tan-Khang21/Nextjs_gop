@@ -18,7 +18,11 @@ export const login = createAsyncThunk<
 >("auth/login", async ({ email, password }, thunkAPI) => {
   try {
     const payload = await loginFunction({ email: email, password: password });
-    return payload;
+    return {
+      resultCode: payload.resultCode,
+      message: payload.message,
+      userData: payload.userData ?? null
+    };
   } catch (error) {
     if (axios.isAxiosError(error)) {
       return thunkAPI.rejectWithValue("Đăng nhập thất bại");
@@ -64,8 +68,8 @@ export const register = createAsyncThunk<
         email,
         password,
         name,
-        username,
         tel,
+        username,
       });
       return res;
     } catch (error) {
